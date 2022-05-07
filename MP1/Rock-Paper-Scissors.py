@@ -2,32 +2,32 @@ import matplotlib.pyplot as plt
 import numpy as np
 import enum
 
-def EnterPositiveInteger():
+def enterPositiveInteger():
     try:
-        count = int(input())
-        if count < 1:
+        number = int(input())
+        if number < 1:
             print("Enter a non-negative integer: ")
-            return EnterPositiveInteger()       
+            return enterPositiveInteger()       
     except:
         print("Enter a non-negative integer: ")
-        return EnterPositiveInteger()
+        return enterPositiveInteger()
     
-    return count
+    return number
 
-def PlayerChoise(max):
+def playerChoise(max):
  
     try:
-        count = int(input())
-        if count < 1 or count > max:
+        number = int(input())
+        if number < 1 or number > max:
             print("Enter a non-negative less " + str(max) + " than  integer: ")
-            return PlayerChoise(max)       
+            return playerChoise(max)       
     except:
         print("Enter a non-negative less " + str(max) + " than  integer: ")
-        return PlayerChoise(max)
+        return playerChoise(max)
     
-    return count
+    return number
 
-def SelectWinStrategy(enemyChoise):
+def selectWinStrategy(enemyChoise, beats):
     for i in beats:
         if beats[i].value == enemyChoise:
             return i
@@ -38,58 +38,67 @@ class Options (enum.Enum):
     paper = 2
     scissors = 3
 
-#optionsCount = len(Options._member_map_)
+def main():
+    beats = {
+        Options.rock : Options.scissors,
+        Options.paper : Options.rock,
+        Options.scissors : Options.paper 
+    }
 
-beats = {
-    Options.rock : Options.scissors,
-    Options.paper : Options.rock,
-    Options.scissors : Options.paper 
-}
+    playerChoices = [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+    probability = [1, 1, 1]
+    lastPlayerChoice = np.random.choice(Options, p = [1/3, 1/3, 1/3])
+    points = 0
 
-playerChoices = [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
-probability = [1, 1, 1]
-lastPlayerChoice = np.random.choice(Options, p = [1/3, 1/3, 1/3])
+    print('\n')
+    print("Enter count of Draws :")
+    numberOfGames = enterPositiveInteger()
+    print('\n')
 
-points = 0
+    print("Options for player choise :")
+    for option in Options:
+        print(option.value, " " + option.name)
+    print('\n')
 
-print('\n')
-print("Enter count of Draws :")
-numberOfGames = EnterPositiveInteger()
-print('\n')
+    matches = np.zeros(numberOfGames) # Array of played matches
 
-print("Options for player choise :")
-for option in Options:
-    print(option.value, " " + option.name)
-print('\n')
+    for round in range(numberOfGames):
 
-for round in range(numberOfGames):
+        choiceRow = int(lastPlayerChoice.value) - 1
+        sumOfChoices = sum(playerChoices[choiceRow])
 
-    choiceRow = int(lastPlayerChoice.value) - 1
-    sumOfChoices = sum(playerChoices[choiceRow])
+        for x in range(len(probability)):
+            probability[x] = playerChoices[choiceRow][x] / sumOfChoices
 
-    for x in range(len(probability)):
-        probability[x] = playerChoices[choiceRow][x] / sumOfChoices
+        playerPredictedChoice = np.random.choice(Options, p = probability)
 
-    playerPredictedChoice = np.random.choice(Options, p = probability)
+        computer = selectWinStrategy(playerPredictedChoice.value, beats)
+        #computer = Options(np.random.choice(Options))
+        player = Options(np.random.choice(Options, p = [0.1, 0.2, 0.7]))
+        #player = Options(PlayerChoise(len(Options._member_map_)))
 
-    computer = SelectWinStrategy(playerPredictedChoice.value)
-    #computer = Options(np.random.choice(Options))
-    player = Options(np.random.choice(Options, p = [0.1, 0.2, 0.7]))
-    #player = Options(PlayerChoise(len(Options._member_map_)))
+        playerChoices[choiceRow][choiceRow] += 1
+        lastPlayerChoice = player
 
-    playerChoices[choiceRow][choiceRow] += 1
-    lastPlayerChoice = player
+        print(computer.name + " — " + player.name)
 
-    print(computer.name + " — " + player.name)
+        if beats[computer].value == player.value:
+            print("computer wins\n")
+            points -= 1
+        elif computer.value == player.value:
+            print("draw\n")
+        else:
+            print("player wins\n")
+            points += 1
 
-    if beats[computer].value == player.value:
-        print("computer wins\n")
-        points -= 1
-    elif computer.value == player.value:
-        print("draw\n")
-    else:
-        print("player wins\n")
-        points += 1
+        matches[round] = points
 
-print("\nFinal score " + str(points) + '\n')
-    
+    print("\nFinal score " + str(points) + '\n')
+
+    plt.plot(matches, 'ro')
+    plt.xlabel('Game rounds')
+    plt.ylabel('Points')
+    plt.show()
+
+if __name__ == '__main__':
+    main()
