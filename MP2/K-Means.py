@@ -1,21 +1,8 @@
 import os
-from turtle import clone
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.metrics import davies_bouldin_score
-
-
-def enterPositiveInteger():
-    print("Enter a non-negative integer: ")
-    try:
-        number = int(input())
-        if number < 1:
-            return enterPositiveInteger()       
-    except:
-        return enterPositiveInteger()
-    
-    return number
 
 def euclideanDistance(vector1, vector2):
     sum = 0
@@ -128,12 +115,6 @@ def main():
     plt.xlabel('Position X')
     plt.ylabel('Position Y')
     plt.savefig(os.path.join(resultPath, 'clusters_visualisation.png'))
-
-    # plt.plot(list(results.keys()), list(results.values()))
-    # plt.xlabel("Number of clusters")
-    # plt.ylabel("Davies-Boulding Index")
-    # plt.show()
-
 
 if __name__ == '__main__':
     main()
